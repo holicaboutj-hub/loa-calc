@@ -15,7 +15,7 @@
       --text-color: #ffffff;
       --sub-text-color: #aaaaaa;
       --border-color: #333333;
-      --accent-color: #9a9bcf; /* #6667AB 대비 다크모드용 시독성 개선 톤 */
+      --accent-color: #9a9bcf;
       --accent-text-color: #121212;
       --tooltip-bg: #fffbcf;
       --tooltip-text: #222222;
@@ -33,7 +33,7 @@
       --text-color: #212529;
       --sub-text-color: #6c757d;
       --border-color: #dee2e6;
-      --accent-color: #5c5d9b; /* #6667AB 대비 화이트 배경 가독성 강화 톤 */
+      --accent-color: #5c5d9b;
       --accent-text-color: #ffffff;
       --tooltip-bg: #333333;
       --tooltip-text: #ffffff;
@@ -344,6 +344,13 @@
     </div>
 
     <div class="result-row">
+      <span class="tooltip-target">선점가
+        <span class="tooltip-text">상대방 입찰 시 손익분기 초과 유도<br>(손익분기점 / 1.1)</span>
+      </span>
+      <span class="copyable-price" id="preempt" onclick="copyPrice(this)">0 G</span>
+    </div>
+
+    <div class="result-row">
       <span class="tooltip-target">25% 이득 입찰가
         <span class="tooltip-text">손익분기점 × 0.75</span>
       </span>
@@ -359,16 +366,9 @@
 
     <div class="result-row">
       <span class="tooltip-target">75% 이득 입찰가
-        <span class="tooltip-text">손익분기점 / 1.075</span>
+        <span class="tooltip-text">손익분기점 × 0.25</span>
       </span>
       <span class="copyable-price" id="profit-75" onclick="copyPrice(this)">0 G</span>
-    </div>
-
-    <div class="result-row">
-      <span class="tooltip-target">선점가
-        <span class="tooltip-text">손익분기점 / 1.1 (반올림)</span>
-      </span>
-      <span class="copyable-price" id="preempt" onclick="copyPrice(this)">0 G</span>
     </div>
 
     <div class="result-row highlight">
@@ -548,13 +548,17 @@
       return;
     }
 
+    // 1. 실수령액 및 기본 손익분기점
     const directUse = Math.floor(price * ((partySize - 1) / partySize));
     const netPrice = price * 0.95;
     const breakEven = Math.floor(netPrice * ((partySize - 1) / partySize));
+
+    // 2. 로아차트 기준 선점가 및 이득 입찰가 계산
+    const preempt = Math.round(breakEven / 1.1);
     const profit25 = Math.floor(breakEven * 0.75);
     const profit50 = Math.floor(breakEven * 0.50);
-    const profit75 = Math.floor(breakEven / 1.075);
-    const preempt = Math.round(breakEven / 1.1);
+    const profit75 = Math.floor(breakEven * 0.25);
+
     const distribution = Math.floor(breakEven / (partySize - 1));
 
     updateUI(directUse, breakEven, profit25, profit50, profit75, preempt, distribution);
@@ -563,10 +567,10 @@
   function updateUI(direct, be, p25, p50, p75, pre, dist) {
     document.getElementById('direct-use').innerText = direct.toLocaleString() + ' G';
     document.getElementById('break-even').innerText = be.toLocaleString() + ' G';
+    document.getElementById('preempt').innerText = pre.toLocaleString() + ' G';
     document.getElementById('profit-25').innerText = p25.toLocaleString() + ' G';
     document.getElementById('profit-50').innerText = p50.toLocaleString() + ' G';
     document.getElementById('profit-75').innerText = p75.toLocaleString() + ' G';
-    document.getElementById('preempt').innerText = pre.toLocaleString() + ' G';
     document.getElementById('distribution').innerText = dist.toLocaleString() + ' G';
   }
 
