@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>로아 경매 분배금 계산기</title>
+  <title>로아 경매 계산기</title>
   <style>
-    /* 1. 기본 다크 테마 변수 (부드럽고 밝은 라벤더 퍼플) */
     :root {
       --bg-color: #121212;
       --card-bg: #1e1e1e;
@@ -17,13 +16,11 @@
       --border-color: #333333;
       --accent-color: #9a9bcf;
       --accent-text-color: #121212;
-      --tooltip-bg: #fffbcf;
-      --tooltip-text: #222222;
+      --gold-color: #ffb74d;
       --btn-hover-bg: var(--accent-color);
       --btn-hover-text: #121212;
     }
 
-    /* 2. 라이트 테마 변수 (선명하고 차분한 딥 퍼플) */
     [data-theme="light"] {
       --bg-color: #f4f6f8;
       --card-bg: #ffffff;
@@ -35,8 +32,7 @@
       --border-color: #dee2e6;
       --accent-color: #5c5d9b;
       --accent-text-color: #ffffff;
-      --tooltip-bg: #333333;
-      --tooltip-text: #ffffff;
+      --gold-color: #d97706;
       --btn-hover-bg: #5c5d9b;
       --btn-hover-text: #ffffff;
     }
@@ -62,7 +58,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    /* 헤더 및 테마 스위처 */
     .header {
       display: flex;
       justify-content: space-between;
@@ -86,9 +81,6 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       transition: all 0.2s;
     }
     .theme-btn.active {
@@ -97,7 +89,6 @@
       font-weight: bold;
     }
 
-    /* API Key 카드 */
     .api-card {
       background: var(--sub-card-bg);
       padding: 12px;
@@ -111,7 +102,6 @@
       margin-bottom: 8px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
     .api-input-group { display: flex; gap: 6px; }
     .api-input-group input {
@@ -149,9 +139,7 @@
       margin-top: 8px;
       text-align: right;
     }
-    .api-link:hover { color: var(--accent-color); }
 
-    /* 입력 요소 영역 */
     .engraving-section { margin-bottom: 16px; }
     .select-group { display: flex; gap: 6px; }
     select {
@@ -202,60 +190,44 @@
       border-color: var(--accent-color);
     }
     
-    /* 결과 박스 */
-    .result-box {
+    /* 표 스타일 (사진 레이아웃 반영) */
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
       background: var(--sub-card-bg);
-      padding: 16px;
       border-radius: 8px;
+      overflow: hidden;
       border: 1px solid var(--border-color);
     }
-    .result-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      font-size: 14px;
-      position: relative;
-    }
-    .result-row.highlight {
-      color: var(--accent-color);
-      font-weight: bold;
-      font-size: 16px;
-      border-top: 1px solid var(--border-color);
-      padding-top: 12px;
-      margin-bottom: 0;
-    }
-    
-    /* 툴팁 */
-    .tooltip-target { position: relative; cursor: help; text-decoration: underline dotted var(--sub-text-color); }
-    .tooltip-target .tooltip-text {
-      visibility: hidden;
-      width: 230px;
-      background-color: var(--tooltip-bg);
-      color: var(--tooltip-text);
+    .result-table th, .result-table td {
+      padding: 12px 8px;
       text-align: center;
-      border-radius: 6px;
-      padding: 6px 8px;
-      position: absolute;
-      z-index: 10;
-      bottom: 125%;
-      left: 0;
-      font-size: 11px;
-      font-weight: normal;
-      box-shadow: 0px 3px 6px rgba(0,0,0,0.15);
-      opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
+      font-size: 14px;
     }
-    .tooltip-target:hover .tooltip-text { visibility: visible; opacity: 1; }
-
-    /* 클릭 복사 버튼 */
+    .result-table th {
+      color: var(--sub-text-color);
+      font-weight: normal;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+    }
+    .result-table td {
+      border-bottom: 1px solid var(--border-color);
+    }
+    .result-table tr:last-child td {
+      border-bottom: none;
+    }
+    .profit-val {
+      color: var(--gold-color);
+      font-weight: bold;
+    }
     .copyable-price {
       cursor: pointer;
+      display: inline-block;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       padding: 4px 8px;
       border-radius: 4px;
+      font-weight: bold;
       transition: background 0.15s, color 0.15s;
     }
     .copyable-price:hover {
@@ -276,7 +248,6 @@
       display: none;
       z-index: 100;
     }
-
     .loading-text { font-size: 12px; color: var(--sub-text-color); margin-top: 4px; }
   </style>
 </head>
@@ -302,7 +273,7 @@
       <button class="btn-save" onclick="saveApiKey()">저장</button>
       <button class="btn-del" onclick="deleteApiKey()">삭제</button>
     </div>
-    <a href="https://developer-lostark.game.onstove.com/" target="_blank" class="api-link">🔑 API KEY 발급받기 (로스트아크 개발자 센터)</a>
+    <a href="https://developer-lostark.game.onstove.com/" target="_blank" class="api-link">🔑 API KEY 발급받기</a>
   </div>
   
   <div class="engraving-section">
@@ -323,72 +294,63 @@
 
   <label>파티 인원</label>
   <div class="party-selector">
-    <button class="party-btn" onclick="setParty(4, this)">4인</button>
-    <button class="party-btn active" onclick="setParty(8, this)">8인</button>
+    <button class="party-btn active" onclick="setParty(4, this)">4인</button>
+    <button class="party-btn" onclick="setParty(8, this)">8인</button>
     <button class="party-btn" onclick="setParty(16, this)">16인</button>
   </div>
 
-  <div class="result-box">
-    <div class="result-row">
-      <span class="tooltip-target">직접사용
-        <span class="tooltip-text">시세 × (인원수 - 1) / 인원수<br>(수수료 미고려 본인 사용가)</span>
-      </span>
-      <span class="copyable-price" id="direct-use" onclick="copyPrice(this)">0 G</span>
-    </div>
-
-    <div class="result-row">
-      <span class="tooltip-target">손익분기점
-        <span class="tooltip-text">(시세 × 0.95) × (인원수 - 1) / 인원수<br>(이 금액 초과 입찰 시 손해)</span>
-      </span>
-      <span class="copyable-price" id="break-even" onclick="copyPrice(this)">0 G</span>
-    </div>
-
-    <div class="result-row">
-      <span class="tooltip-target">선점가
-        <span class="tooltip-text">상대방 1.1배 상향 입찰 시 손익분기 초과 유도<br>(손익분기점 / 1.1)</span>
-      </span>
-      <span class="copyable-price" id="preempt" onclick="copyPrice(this)">0 G</span>
-    </div>
-
-    <div class="result-row">
-      <span class="tooltip-target">25% 이득 입찰가
-        <span class="tooltip-text">손익분기점 대비 25% 이득<br>(손익분기점 × 0.75)</span>
-      </span>
-      <span class="copyable-price" id="profit-25" onclick="copyPrice(this)">0 G</span>
-    </div>
-
-    <div class="result-row">
-      <span class="tooltip-target">50% 이득 입찰가
-        <span class="tooltip-text">손익분기점 대비 50% 이득<br>(손익분기점 × 0.50)</span>
-      </span>
-      <span class="copyable-price" id="profit-50" onclick="copyPrice(this)">0 G</span>
-    </div>
-
-    <div class="result-row">
-      <span class="tooltip-target">75% 이득 입찰가
-        <span class="tooltip-text">손익분기점 대비 75% 이득<br>(손익분기점 × 0.25)</span>
-      </span>
-      <span class="copyable-price" id="profit-75" onclick="copyPrice(this)">0 G</span>
-    </div>
-
-    <div class="result-row highlight">
-      <span class="tooltip-target">분배금 (1인당)
-        <span class="tooltip-text">손익분기점 낙찰 시 입찰 실패 파티원(n-1명)이 각각 받는 골드</span>
-      </span>
-      <span id="distribution">0 G</span>
-    </div>
-  </div>
+  <!-- 사진 구조 반영 테이블 -->
+  <table class="result-table">
+    <thead>
+      <tr>
+        <th style="width: 30%;">손익</th>
+        <th style="width: 35%;">/</th>
+        <th style="width: 35%;">입찰가</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="profit-val" id="profit-direct">0 G</td>
+        <td>직접 사용</td>
+        <td><span class="copyable-price" id="bid-direct" onclick="copyPrice(this)">0 G</span></td>
+      </tr>
+      <tr>
+        <td class="profit-val" id="profit-be">0 G</td>
+        <td>손익 분기점</td>
+        <td><span class="copyable-price" id="bid-be" onclick="copyPrice(this)">0 G</span></td>
+      </tr>
+      <tr>
+        <td class="profit-val" id="profit-25">0 G</td>
+        <td>25% 이득</td>
+        <td><span class="copyable-price" id="bid-25" onclick="copyPrice(this)">0 G</span></td>
+      </tr>
+      <tr>
+        <td class="profit-val" id="profit-50">0 G</td>
+        <td>50% 이득</td>
+        <td><span class="copyable-price" id="bid-50" onclick="copyPrice(this)">0 G</span></td>
+      </tr>
+      <tr>
+        <td class="profit-val" id="profit-75">0 G</td>
+        <td>75% 이득</td>
+        <td><span class="copyable-price" id="bid-75" onclick="copyPrice(this)">0 G</span></td>
+      </tr>
+      <tr>
+        <td class="profit-val" id="profit-preempt">0 G</td>
+        <td>선점가 (100%)</td>
+        <td><span class="copyable-price" id="bid-preempt" onclick="copyPrice(this)">0 G</span></td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <div id="toast" class="copy-toast">클립보드에 복사되었습니다!</div>
 
 <script>
-  let partySize = 8;
+  let partySize = 4;
   let engravingDataList = [];
 
   window.onload = function() {
     initTheme();
-
     const savedKey = localStorage.getItem('loa_api_key');
     if (savedKey) {
       document.getElementById('apiKey').value = savedKey;
@@ -406,7 +368,7 @@
     const savedTheme = localStorage.getItem('loa_theme') || 'system';
     applyTheme(savedTheme);
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       if (localStorage.getItem('loa_theme') === 'system') {
         applyTheme('system');
       }
@@ -499,7 +461,7 @@
       renderEngravingSelect();
       statusElem.innerText = '시세 업데이트 완료';
     } catch (error) {
-      statusElem.innerText = 'CORS 차단됨: Allow CORS 확장 프로그램을 켜거나 브라우저 설정을 확인해 주세요.';
+      statusElem.innerText = 'CORS 차단됨: Allow CORS 확장 프로그램을 확인해 주세요.';
     }
   }
 
@@ -544,35 +506,59 @@
   function calculate() {
     const price = parseFloat(document.getElementById('price').value) || 0;
     if (price <= 0) {
-      updateUI(0, 0, 0, 0, 0, 0, 0);
+      resetUI();
       return;
     }
 
-    // 1. 실수령액 및 기본 손익분기점
-    const directUse = Math.floor(price * ((partySize - 1) / partySize));
+    // 1. 직접 사용가 (수수료 미고려 1/n 분배 기준)
+    const bidDirect = Math.floor(price * ((partySize - 1) / partySize));
+    const profitDirect = Math.floor(price / partySize);
+
+    // 2. 손익 분기점 (수수료 5% 고려)
     const netPrice = price * 0.95;
-    const breakEven = Math.floor(netPrice * ((partySize - 1) / partySize));
+    const bidBE = Math.floor(netPrice * ((partySize - 1) / partySize));
+    const profitBE = 0; // 이득 0원
 
-    // 2. 선점가 및 이득 입찰가
-    const preempt = Math.round(breakEven / 1.1);
-    const profit25 = Math.floor(breakEven * 0.75);
-    const profit50 = Math.floor(breakEven * 0.50);
-    const profit75 = Math.floor(breakEven * 0.25);
+    // 3. 입찰가 단계별 계산 (1.1 분할 상향 유도)
+    const bid25 = Math.round(bidBE / 1.025);
+    const bid50 = Math.round(bidBE / 1.05);
+    const bid75 = Math.round(bidBE / 1.075);
+    const bidPreempt = Math.round(bidBE / 1.1);
 
-    // 3. 입찰 실패자 1인당 우편 분배금
-    const distribution = Math.floor(breakEven / (partySize - 1));
+    // 4. 순이익(손익) 계산 = (실수령액 - 낙찰가) - (낙찰가 / (n-1))
+    const calcProfit = (bid) => Math.floor((netPrice - bid) - (bid / (partySize - 1)));
 
-    updateUI(directUse, breakEven, profit25, profit50, profit75, preempt, distribution);
+    const profit25 = calcProfit(bid25);
+    const profit50 = calcProfit(bid50);
+    const profit75 = calcProfit(bid75);
+    const profitPreempt = calcProfit(bidPreempt);
+
+    // UI 업데이트
+    document.getElementById('bid-direct').innerText = bidDirect.toLocaleString() + ' G';
+    document.getElementById('profit-direct').innerText = profitDirect.toLocaleString() + ' G';
+
+    document.getElementById('bid-be').innerText = bidBE.toLocaleString() + ' G';
+    document.getElementById('profit-be').innerText = profitBE.toLocaleString() + ' G';
+
+    document.getElementById('bid-25').innerText = bid25.toLocaleString() + ' G';
+    document.getElementById('profit-25').innerText = profit25.toLocaleString() + ' G';
+
+    document.getElementById('bid-50').innerText = bid50.toLocaleString() + ' G';
+    document.getElementById('profit-50').innerText = profit50.toLocaleString() + ' G';
+
+    document.getElementById('bid-75').innerText = bid75.toLocaleString() + ' G';
+    document.getElementById('profit-75').innerText = profit75.toLocaleString() + ' G';
+
+    document.getElementById('bid-preempt').innerText = bidPreempt.toLocaleString() + ' G';
+    document.getElementById('profit-preempt').innerText = profitPreempt.toLocaleString() + ' G';
   }
 
-  function updateUI(direct, be, p25, p50, p75, pre, dist) {
-    document.getElementById('direct-use').innerText = direct.toLocaleString() + ' G';
-    document.getElementById('break-even').innerText = be.toLocaleString() + ' G';
-    document.getElementById('preempt').innerText = pre.toLocaleString() + ' G';
-    document.getElementById('profit-25').innerText = p25.toLocaleString() + ' G';
-    document.getElementById('profit-50').innerText = p50.toLocaleString() + ' G';
-    document.getElementById('profit-75').innerText = p75.toLocaleString() + ' G';
-    document.getElementById('distribution').innerText = dist.toLocaleString() + ' G';
+  function resetUI() {
+    const ids = ['direct', 'be', '25', '50', '75', 'preempt'];
+    ids.forEach(id => {
+      document.getElementById(`bid-${id}`).innerText = '0 G';
+      document.getElementById(`profit-${id}`).innerText = '0 G';
+    });
   }
 
   function copyPrice(element) {
