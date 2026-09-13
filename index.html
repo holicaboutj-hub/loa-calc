@@ -230,7 +230,7 @@
     .tooltip-target { position: relative; cursor: help; text-decoration: underline dotted var(--sub-text-color); }
     .tooltip-target .tooltip-text {
       visibility: hidden;
-      width: 210px;
+      width: 230px;
       background-color: var(--tooltip-bg);
       color: var(--tooltip-text);
       text-align: center;
@@ -345,35 +345,35 @@
 
     <div class="result-row">
       <span class="tooltip-target">선점가
-        <span class="tooltip-text">상대방 입찰 시 손익분기 초과 유도<br>(손익분기점 / 1.1)</span>
+        <span class="tooltip-text">상대방 1.1배 상향 입찰 시 손익분기 초과 유도<br>(손익분기점 / 1.1)</span>
       </span>
       <span class="copyable-price" id="preempt" onclick="copyPrice(this)">0 G</span>
     </div>
 
     <div class="result-row">
       <span class="tooltip-target">25% 이득 입찰가
-        <span class="tooltip-text">손익분기점 × 0.75</span>
+        <span class="tooltip-text">손익분기점 대비 25% 이득<br>(손익분기점 × 0.75)</span>
       </span>
       <span class="copyable-price" id="profit-25" onclick="copyPrice(this)">0 G</span>
     </div>
 
     <div class="result-row">
       <span class="tooltip-target">50% 이득 입찰가
-        <span class="tooltip-text">손익분기점 × 0.50</span>
+        <span class="tooltip-text">손익분기점 대비 50% 이득<br>(손익분기점 × 0.50)</span>
       </span>
       <span class="copyable-price" id="profit-50" onclick="copyPrice(this)">0 G</span>
     </div>
 
     <div class="result-row">
       <span class="tooltip-target">75% 이득 입찰가
-        <span class="tooltip-text">손익분기점 × 0.25</span>
+        <span class="tooltip-text">손익분기점 대비 75% 이득<br>(손익분기점 × 0.25)</span>
       </span>
       <span class="copyable-price" id="profit-75" onclick="copyPrice(this)">0 G</span>
     </div>
 
     <div class="result-row highlight">
       <span class="tooltip-target">분배금 (1인당)
-        <span class="tooltip-text">손익분기점 기준 1인당 수령액</span>
+        <span class="tooltip-text">손익분기점 낙찰 시 입찰 실패 파티원(n-1명)이 각각 받는 골드</span>
       </span>
       <span id="distribution">0 G</span>
     </div>
@@ -553,12 +553,13 @@
     const netPrice = price * 0.95;
     const breakEven = Math.floor(netPrice * ((partySize - 1) / partySize));
 
-    // 2. 로아차트 기준 선점가 및 이득 입찰가 계산
+    // 2. 선점가 및 이득 입찰가
     const preempt = Math.round(breakEven / 1.1);
     const profit25 = Math.floor(breakEven * 0.75);
     const profit50 = Math.floor(breakEven * 0.50);
     const profit75 = Math.floor(breakEven * 0.25);
 
+    // 3. 입찰 실패자 1인당 우편 분배금
     const distribution = Math.floor(breakEven / (partySize - 1));
 
     updateUI(directUse, breakEven, profit25, profit50, profit75, preempt, distribution);
